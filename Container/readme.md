@@ -1,5 +1,5 @@
 Create/edit /etc/docker/daemon.json file:
-```sh
+```bash
 vi /etc/docker/daemon.json
 ```
 Add below given lines in it:
@@ -10,17 +10,17 @@ Add below given lines in it:
 }
 ```
 Restart docker service:
-```sh
+```bash
 systemctl restart docker
 ```
 Verify if docker is exporting the metrics now:
-```sh
+```bash
 curl localhost:9323/metrics
 ```
 Created a job called docker in Prometheus
 
 Edit /etc/prometheus/prometheus.yml file:
-```sh
+```bash
 vi /etc/prometheus/prometheus.yml
 ```
 Add below given lines under scrape_configs:
@@ -30,6 +30,6 @@ Add below given lines under scrape_configs:
       - targets: ["localhost:9323"]
 ```
 Restart prometheus service:
-```sh
+```bash
 systemctl restart prometheus
 ```
