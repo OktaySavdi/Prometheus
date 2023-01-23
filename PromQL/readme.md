@@ -102,6 +102,7 @@ Month()          |{}09
 Year()           |{}2022
 ```
 ### Subqueries
+![image](https://user-images.githubusercontent.com/3519706/214003389-22a6ab2f-faa2-403d-a350-0f3bcad1d7a4.png)
 ```
 <instant_query> [<range>:<resolutions>] [offset <duration>]
 
