@@ -1,3 +1,75 @@
+### Installation
+
+Download and install the Pushgateway binary:
+```sh
+wget https://github.com/prometheus/pushgateway/releases/download/v1.5.0/pushgateway-1.5.0.linux-amd64.tar.gz
+tar xvfz pushgateway-1.5.0.linux-amd64.tar.gz
+cp pushgateway-1.5.0.linux-amd64/pushgateway /usr/local/bin/
+useradd -M -r -s /bin/false pushgateway
+chown pushgateway:pushgateway /usr/local/bin/pushgateway
+```
+Create a systemd unit file for Pushgateway:
+```sh
+vi /etc/systemd/system/pushgateway.service
+```
+Add below code in it:
+```sh
+[Unit]
+Description=Prometheus Pushgateway
+Wants=network-online.target
+After=network-online.target
+
+[Service]
+User=pushgateway
+Group=pushgateway
+Type=simple
+ExecStart=/usr/local/bin/pushgateway
+
+[Install]
+WantedBy=multi-user.target
+```
+Start and enable the pushgateway service:
+```sh
+systemctl enable pushgateway
+systemctl start pushgateway
+```
+Edit /etc/prometheus/prometheus.yml file:
+```sh
+vi /etc/prometheus/prometheus.yml
+```
+Add below lines under scrape_configs:
+```yaml
+  - job_name: pushgateway
+    honor_labels: true
+    static_configs:
+      - targets: ["localhost:9091"]
+```
+Restart the prometheus service:
+```sh
+systemctl restart prometheus
+```
+Run the below commands:
+```sh
+cat <<EOF | curl --data-binary @- http://localhost:9091/metrics/job/video_processing/instance/mp4_node1
+# TYPE processing_time_seconds gauge
+processing_time_seconds{quality="hd"} 120
+# TYPE processed_videos_total gauge
+processed_videos_total{quality="hd"} 10
+# TYPE processed_bytes_total gauge
+processed_bytes_total{quality="hd"} 4400
+EOF
+```
+```sh
+cat <<EOF | curl --data-binary @- http://localhost:9091/metrics/job/video_processing/instance/mov_node1
+# TYPE processing_time_seconds gauge
+processing_time_seconds{quality="hd"} 400
+# TYPE processed_videos_total gauge
+processed_videos_total{quality="hd"} 250
+# TYPE processed_bytes_total gauge
+processed_bytes_total{quality="hd"} 96000
+EOF
+```
+
 Send HTTP POST request using the following URL :
 ```
 http://<pushgateway_address>:<port>/metrics/job/<job_name>/<label1>/<value1>/<label2>/<value2>
